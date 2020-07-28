@@ -146,9 +146,9 @@ class _HomePageState extends State<HomePage> {
                       height: 100,
                       color: Colors.white,
                       child: GestureDetector(
-                        onTap: () => debugPrint("Popup tap!"),
+                        onTap: () => debugPrint('Popup tap!'),
                         child: Text(
-                          "Container popup for marker at ${marker.point}",
+                          'Container popup for marker at ${marker.point}',
                         ),
                       ),
                     )),

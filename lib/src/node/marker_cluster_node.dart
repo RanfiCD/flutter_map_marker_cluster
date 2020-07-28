@@ -39,19 +39,19 @@ class MarkerClusterNode {
     return map.unproject((swPoint + nePoint) / 2);
   }
 
-  addChild(dynamic child) {
+  void addChild(dynamic child) {
     assert(child is MarkerNode || child is MarkerClusterNode);
     children.add(child);
     child.parent = this;
     bounds.extend(child.point);
   }
 
-  removeChild(dynamic child) {
+  void removeChild(dynamic child) {
     children.remove(child);
     recalculateBounds();
   }
 
-  recalculateBounds() {
+  void recalculateBounds() {
     bounds = LatLngBounds();
 
     markers.forEach((marker) {
@@ -65,7 +65,7 @@ class MarkerClusterNode {
     });
   }
 
-  recursively(int zoomLevel, Function(dynamic) fn) {
+  void recursively(int zoomLevel, Function(dynamic) fn) {
     if (zoom == zoomLevel) {
       fn(this);
       return;

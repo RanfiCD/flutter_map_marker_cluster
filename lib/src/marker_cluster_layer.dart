@@ -25,8 +25,9 @@ class MarkerClusterLayer extends StatefulWidget {
 
 class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     with TickerProviderStateMixin {
-  Map<int, DistanceGrid<MarkerClusterNode>> _gridClusters = {};
-  Map<int, DistanceGrid<MarkerNode>> _gridUnclustered = {};
+
+  final Map<int, DistanceGrid<MarkerClusterNode>> _gridClusters = {};
+  final Map<int, DistanceGrid<MarkerNode>> _gridUnclustered = {};
   MarkerClusterNode _topClusterLevel;
   int _maxZoom;
   int _minZoom;
@@ -70,7 +71,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     return Point(x, y);
   }
 
-  _initializeAnimationController() {
+  void _initializeAnimationController() {
     _zoomController = AnimationController(
       vsync: this,
       duration: widget.options.animationsOptions.zoom,
@@ -92,7 +93,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     );
   }
 
-  _initializeClusters() {
+  void _initializeClusters() {
     // set up DistanceGrids for each zoom
     for (var zoom = _maxZoom; zoom >= _minZoom; zoom--) {
       _gridClusters[zoom] = DistanceGrid(widget.options.maxClusterRadius);
@@ -105,7 +106,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     );
   }
 
-  _addLayer(MarkerNode marker) {
+  void _addLayer(MarkerNode marker) {
     for (var zoom = _maxZoom; zoom >= _minZoom; zoom--) {
       var markerPoint = widget.map.project(marker.point, zoom.toDouble());
       // try find a cluster close by
@@ -152,7 +153,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     _topClusterLevel.addChild(marker);
   }
 
-  _addLayers() {
+  void _addLayers() {
     for (var marker in widget.options.markers) {
       _addLayer(MarkerNode(marker));
     }
@@ -160,7 +161,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     _topClusterLevel.recalculateBounds();
   }
 
-  _removeFromNewPosToMyPosGridUnclustered(MarkerNode marker, int zoom) {
+  void _removeFromNewPosToMyPosGridUnclustered(MarkerNode marker, int zoom) {
     for (; zoom >= _minZoom; zoom--) {
       if (!_gridUnclustered[zoom].removeObject(marker)) {
         break;
@@ -340,7 +341,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     );
   }
 
-  _spiderfy(MarkerClusterNode cluster) {
+  void _spiderfy(MarkerClusterNode cluster) {
     if (_spiderfyCluster != null) {
       _unspiderfy();
       return;
@@ -352,7 +353,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     _spiderfyController.forward();
   }
 
-  _unspiderfy() {
+  void _unspiderfy() {
     switch (_spiderfyController.status) {
       case AnimationStatus.completed:
         List<Marker> markersGettingClustered = _spiderfyCluster.markers
@@ -426,7 +427,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
 
     if (layer is MarkerNode) {
       if (!_boundsContainsMarker(layer)) {
-        return List<Widget>();
+        return [];
       }
 
       // fade in if
@@ -450,7 +451,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     }
     if (layer is MarkerClusterNode) {
       if (!_boundsContainsCluster(layer)) {
-        return List<Widget>();
+        return [];
       }
 
       // fade in if
@@ -461,7 +462,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
         // cluster
         layers.add(_buildCluster(layer, FadeType.FadeIn));
         // children
-        List<Marker> markersGettingClustered = List<Marker>();
+        List<Marker> markersGettingClustered = [];
         layer.children.forEach((child) {
           if (child is MarkerNode) {
             markersGettingClustered.add(child.marker);
@@ -553,7 +554,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     return layers;
   }
 
-  _isSpiderfyCluster(MarkerClusterNode cluster) {
+  bool _isSpiderfyCluster(MarkerClusterNode cluster) {
     return _spiderfyCluster != null && _spiderfyCluster.point == cluster.point;
   }
 
@@ -620,7 +621,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     };
   }
 
-  _showPolygon(List<LatLng> points) {
+  void _showPolygon(List<LatLng> points) {
     if (widget.options.showPolygon) {
       setState(() {
         _polygon = PolygonLayer(
@@ -641,7 +642,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     }
   }
 
-  _hidePolygon() {
+  void _hidePolygon() {
     if (widget.options.showPolygon) {
       setState(() {
         _polygon = null;

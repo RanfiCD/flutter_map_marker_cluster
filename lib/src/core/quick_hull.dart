@@ -46,9 +46,10 @@ class QuickHull {
 
     if (t.maxPoint != null) {
       // if there is still a point "outside" the base line
-      return []
-        ..addAll(_buildConvexHull([baseLine[0], t.maxPoint], t.newPoints))
-        ..addAll(_buildConvexHull([t.maxPoint, baseLine[1]], t.newPoints));
+      return [
+        ..._buildConvexHull([baseLine[0], t.maxPoint], t.newPoints),
+        ..._buildConvexHull([t.maxPoint, baseLine[1]], t.newPoints)
+      ];
     } else {
       // if there is no more point "outside" the base line, the current base line is part of the convex hull
       return [baseLine[0]];
@@ -90,8 +91,9 @@ class QuickHull {
       maxPt = maxLngPt;
     }
 
-    return List<LatLng>()
-      ..addAll(_buildConvexHull([minPt, maxPt], latLngs))
-      ..addAll(_buildConvexHull([maxPt, minPt], latLngs));
+    return [
+      ..._buildConvexHull([minPt, maxPt], latLngs),
+      ..._buildConvexHull([maxPt, minPt], latLngs)
+    ];
   }
 }
