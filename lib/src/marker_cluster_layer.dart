@@ -353,46 +353,24 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     _spiderfyController.forward();
   }
 
-  void _unspiderfy() {
-    switch (_spiderfyController.status) {
-      case AnimationStatus.completed:
-        List<Marker> markersGettingClustered = _spiderfyCluster.markers
-            .map((markerNode) => markerNode.marker)
-            .toList();
+   void _unspiderfy() {
+    if ([AnimationStatus.forward, AnimationStatus.completed].contains(_spiderfyController.status)) {
+      if (_spiderfyController.status == AnimationStatus.forward) _spiderfyController.stop();
 
-        _spiderfyController.reverse().then((_) => setState(() {
-              _spiderfyCluster = null;
-            }));
+      List<Marker> markersGettingClustered = _spiderfyCluster.markers
+        .map((markerNode) => markerNode.marker)
+        .toList();
 
-        if (widget.options.popupOptions != null) {
-          widget.options.popupOptions.popupController
-              .hidePopupIfShowingFor(markersGettingClustered);
-        }
-        if (widget.options.onMarkersClustered != null) {
-          widget.options.onMarkersClustered(markersGettingClustered);
-        }
-        break;
-      case AnimationStatus.forward:
-        List<Marker> markersGettingClustered = _spiderfyCluster.markers
-            .map((markerNode) => markerNode.marker)
-            .toList();
+      _spiderfyController.reverse().then((_) => setState(() {
+        _spiderfyCluster = null;
+      }));
 
-        _spiderfyController
-          ..stop()
-          ..reverse().then((_) => setState(() {
-                _spiderfyCluster = null;
-              }));
+      if (widget.options.popupOptions != null) {
+        widget.options.popupOptions.popupController
+          .hidePopupIfShowingFor(markersGettingClustered);
+      }
 
-        if (widget.options.popupOptions != null) {
-          widget.options.popupOptions.popupController
-              .hidePopupIfShowingFor(markersGettingClustered);
-        }
-        if (widget.options.onMarkersClustered != null) {
-          widget.options.onMarkersClustered(markersGettingClustered);
-        }
-        break;
-      default:
-        break;
+      widget.options.onMarkersClustered?.call(markersGettingClustered);
     }
   }
 
@@ -468,17 +446,19 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
             markersGettingClustered.add(child.marker);
 
             layers.add(_buildMarker(
-                child,
-                _zoomController,
-                FadeType.FadeOut,
-                TranslateType.FromMyPosToNewPos,
-                _getPixelFromMarker(child, layer.point)));
+              child,
+              _zoomController,
+              FadeType.FadeOut,
+              TranslateType.FromMyPosToNewPos,
+              _getPixelFromMarker(child, layer.point)
+            ));
           } else {
             layers.add(_buildCluster(
-                child,
-                FadeType.FadeOut,
-                TranslateType.FromMyPosToNewPos,
-                _getPixelFromCluster(child, layer.point)));
+              child,
+              FadeType.FadeOut,
+              TranslateType.FromMyPosToNewPos,
+              _getPixelFromCluster(child, layer.point)
+            ));
           }
         });
 
@@ -486,25 +466,23 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
           widget.options.popupOptions.popupController
               .hidePopupIfShowingFor(markersGettingClustered);
         }
-        if (widget.options.onMarkersClustered != null) {
-          widget.options.onMarkersClustered(markersGettingClustered);
-        }
+
+        widget.options.onMarkersClustered?.call(markersGettingClustered);
       } else if (_zoomController.isAnimating &&
           (_currentZoom > _previousZoom && layer.parent.point != layer.point)) {
         // cluster
         layers.add(_buildCluster(
-            layer,
-            FadeType.FadeIn,
-            TranslateType.FromNewPosToMyPos,
-            _getPixelFromCluster(layer, layer.parent.point)));
+          layer,
+          FadeType.FadeIn,
+          TranslateType.FromNewPosToMyPos,
+          _getPixelFromCluster(layer, layer.parent.point)
+        ));
         //parent
         layers.add(_buildCluster(layer.parent, FadeType.FadeOut));
+      } else if (_isSpiderfyCluster(layer)) {
+        layers.addAll(_buildSpiderfyCluster(layer, _currentZoom));
       } else {
-        if (_isSpiderfyCluster(layer)) {
-          layers.addAll(_buildSpiderfyCluster(layer, _currentZoom));
-        } else {
-          layers.add(_buildCluster(layer));
-        }
+        layers.add(_buildCluster(layer));
       }
     }
 
@@ -524,7 +502,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
 
     if (_polygon != null) layers.add(_polygon);
 
-    if (zoom < _currentZoom || zoom > _currentZoom) {
+    if (zoom != _currentZoom) {
       _previousZoom = _currentZoom;
       _currentZoom = zoom;
 
