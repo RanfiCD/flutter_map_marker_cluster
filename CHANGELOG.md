@@ -1,3 +1,6 @@
+## [0.2.9] - 30/07/2020
+- Added onLayersUpdated callback
+
 ## [0.2.8+1] - 27/07/2020
 
 - Upgraded flutter_map to ">=0.10.0 <0.11.0"
