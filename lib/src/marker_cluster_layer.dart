@@ -497,7 +497,9 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
   }
 
   List<Widget> _buildLayers() {
-    if (widget.map.zoom != _previousZoomDouble) {
+    final bool zoomHasChanged = widget.map.zoom != _previousZoomDouble;
+
+    if (zoomHasChanged) {
       _previousZoomDouble = widget.map.zoom;
 
       _unspiderfy();
@@ -527,7 +529,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     });
 
     // Call onLayersUpdated
-    if (_previousZoomDouble != widget.map.zoom || _previousLocation != widget.map.center) {
+    if (zoomHasChanged || _previousLocation != widget.map.center) {
       widget.options.onLayersUpdated?.call(_clustersToShow, _markersToShow);
     }
     _previousLocation = widget.map.center;
