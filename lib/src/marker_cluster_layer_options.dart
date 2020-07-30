@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_marker_cluster/src/node/marker_cluster_node.dart';
+import 'package:flutter_map_marker_cluster/src/node/marker_node.dart';
 import 'package:flutter_map_marker_popup/extension_api.dart';
 
 class PolygonOptions {
@@ -109,6 +110,9 @@ class MarkerClusterLayerOptions extends LayerOptions {
   /// Function to call when markers are clustered
   final void Function(List<Marker>) onMarkersClustered;
 
+  /// Function to call when the layers are updated
+  final void Function(List<MarkerClusterNode>, List<MarkerNode>) onLayersUpdated;
+
   /// Function to call when a cluster Marker is tapped
   final void Function(MarkerClusterNode) onClusterTap;
 
@@ -136,6 +140,7 @@ class MarkerClusterLayerOptions extends LayerOptions {
     this.onMarkerTap,
     this.onClusterTap,
     this.onMarkersClustered,
+    this.onLayersUpdated,
     this.popupOptions,
   }) : assert(builder != null);
 }

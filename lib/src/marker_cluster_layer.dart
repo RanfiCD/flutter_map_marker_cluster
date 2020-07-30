@@ -34,12 +34,15 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
   int _currentZoom;
   int _previousZoom;
   double _previousZoomDouble;
+  LatLng _previousLocation;
   AnimationController _zoomController;
   AnimationController _fitBoundController;
   AnimationController _centerMarkerController;
   AnimationController _spiderfyController;
   MarkerClusterNode _spiderfyCluster;
   PolygonLayer _polygon;
+  final List<MarkerClusterNode> _clustersToShow = [];
+  final List<MarkerNode> _markersToShow = [];
 
   _MarkerClusterLayerState();
 
@@ -353,7 +356,7 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
     _spiderfyController.forward();
   }
 
-   void _unspiderfy() {
+  void _unspiderfy() {
     if ([AnimationStatus.forward, AnimationStatus.completed].contains(_spiderfyController.status)) {
       if (_spiderfyController.status == AnimationStatus.forward) _spiderfyController.stop();
 
@@ -408,6 +411,8 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
         return [];
       }
 
+      _markersToShow.add(layer);
+
       // fade in if
       // animating and
       // zoom in and parent has the previous zoom
@@ -431,6 +436,8 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
       if (!_boundsContainsCluster(layer)) {
         return [];
       }
+
+      _clustersToShow.add(layer);
 
       // fade in if
       // animating and
@@ -513,9 +520,17 @@ class _MarkerClusterLayerState extends State<MarkerClusterLayer>
             })); // for remove previous layer (animation)
     }
 
+    _clustersToShow.clear();
+    _markersToShow.clear();
     _topClusterLevel.recursively(_currentZoom, (layer) {
       layers.addAll(_buildLayer(layer));
     });
+
+    // Call onLayersUpdated
+    if (_previousZoomDouble != widget.map.zoom || _previousLocation != widget.map.center) {
+      widget.options.onLayersUpdated?.call(_clustersToShow, _markersToShow);
+    }
+    _previousLocation = widget.map.center;
 
     final PopupOptions popupOptions = widget.options.popupOptions;
     if (popupOptions != null) {
